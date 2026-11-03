@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parity Bit Generator and Checker</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Parity Bit Generator and Checker</h1>
+    <p class="sub">Group G11 - Computer Architecture (Error Detection)</p>
+
+    <p class="hint" id="hint">Click the boxes to set your 8 data bits, then press Even or Odd Parity.</p>
+
+    <div class="bits">
+      <div class="bit" id="b0">0</div>
+      <div class="bit" id="b1">0</div>
+      <div class="bit" id="b2">0</div>
+      <div class="bit" id="b3">0</div>
+      <div class="bit" id="b4">0</div>
+      <div class="bit" id="b5">0</div>
+      <div class="bit" id="b6">0</div>
+      <div class="bit" id="b7">0</div>
+      <div class="bit parity hidden" id="b8">0</div>
+    </div>
+
+    <div class="buttons">
+      <button id="evenBtn">Even Parity</button>
+      <button id="oddBtn">Odd Parity</button>
+      <button id="checkBtn">Check</button>
+      <button id="resetBtn">Reset</button>
+    </div>
+
+    <div class="message" id="message">Message will show here</div>
+
+    <h3>Count of 1s (steps)</h3>
+    <ul id="steps"></ul>
+  </div>
+
+  <script src="parity.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
