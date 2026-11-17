@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>draw() Test - script.js - 3 Hand Examples</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 30px; background: #f5f5f5; color: #222; }
+  h1 { font-size: 22px; }
+  .row { padding: 8px 12px; margin: 6px 0; border-radius: 6px; background: #fff; border-left: 6px solid #999; }
+  .pass { border-left-color: #2e9e4f; }
+  .fail { border-left-color: #d33; background: #fdeaea; }
+  .summary { margin-top: 18px; font-size: 18px; font-weight: bold; }
+  /* the real page's boxes live here, hidden, so script.js can find them */
+  #fixture { display: none; }
+</style>
+</head>
+<body>
+<h1>Test: draw() - first function in script.js (3 hand examples from Lab 06)</h1>
+<div id="results"></div>
+<div class="summary" id="summary"></div>
+
+<!-- Minimal copy of the elements script.js looks up when it loads -->
+<div id="fixture">
+  <div class="bit" id="b0">0</div><div class="bit" id="b1">0</div><div class="bit" id="b2">0</div>
+  <div class="bit" id="b3">0</div><div class="bit" id="b4">0</div><div class="bit" id="b5">0</div>
+  <div class="bit" id="b6">0</div><div class="bit" id="b7">0</div>
+  <div class="bit parity" id="b8">0</div>
+  <div id="message"></div>
+  <ul id="steps"></ul>
+  <p id="hint"></p>
+  <button id="evenBtn"></button><button id="oddBtn"></button>
+  <button id="checkBtn"></button><button id="resetBtn"></button>
+</div>
+
+<script>
+  // Collect load/parse errors so they show on the page instead of failing silently
+  var loadErrors = [];
+  window.addEventListener("error", function (e) {
+    if (e.target && e.target.tagName === "SCRIPT") {
+      loadErrors.push("Could not load " + e.target.getAttribute("src") + " (is it in the same folder as this file?)");
+    } else {
+      loadErrors.push((e.filename ? e.filename.split("/").pop() + ": " : "") + e.message);
+    }
+  }, true);
+</script>
+
+<!-- parity.js and script.js must be in the SAME folder as this file -->
+<script src="parity.js"></script>
+<script src="script.js"></script>
+<script>
+  // Hand examples from Lab 06 (Solved Example 1 and 2).
+  // Each is a 9-bit word; draw() must show every bit and highlight every 1.
+  var examples = [
+    ["1. Example 1, even parity: sent 101100100",      "101100100"],
+    ["2. Example 1, odd parity:  sent 101100101",      "101100101"],
+    ["3. Example 2, checker: received 101100110",      "101100110"]
+  ];
+
+  var passed = 0;
+  var box = document.getElementById("results");
+
+  if (typeof draw !== "function") {
+    var msg = document.createElement("div");
+    msg.className = "row fail";
+    msg.textContent = "Cannot run: draw() was not found. " +
+      (loadErrors.length ? loadErrors.join("  |  ") : "Check that parity.js and script.js are in the same folder as test_draw.html.");
+    box.appendChild(msg);
+    document.getElementById("summary").textContent = "0 / " + examples.length + " tests ran";
+    throw new Error("draw() not found");
+  }
+
+  examples.forEach(function (ex) {
+    bits = ex[1].split("");   // script.js global
+    draw();                   // function under test
+
+    var shown = "", lit = "";
+    for (var i = 0; i < 9; i++) {
+      shown += document.getElementById("b" + i).textContent;
+      lit += document.getElementById("b" + i).classList.contains("one") ? "1" : "0";
+    }
+    // expected: text equals the word, and highlighted boxes are exactly the 1s
+    var ok = (shown === ex[1] && lit === ex[1]);
+    if (ok) passed++;
+
+    var div = document.createElement("div");
+    div.className = "row " + (ok ? "pass" : "fail");
+    div.textContent = (ok ? "PASS  " : "FAIL  ") + ex[0] +
+      "   (text: " + shown + ", highlighted: " + lit + ")";
+    box.appendChild(div);
+  });
+
+  document.getElementById("summary").textContent = passed + " / " + examples.length + " tests passed";
+</script>
+</body>
+</html>
