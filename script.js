@@ -29,6 +29,32 @@ function showSteps(steps) {
   });
 }
 
+// ---------- LAB 8: Input checks for feature 1 (parity generator) ----------
+// Returns an error message (string) if the input is bad, or "" if it is OK.
+// Order of checks: 1) empty box  2) wrong value  3) wrong length
+function checkInput(text) {
+  const data = (typeof text === "string") ? text.trim() : "";
+
+  // 1. Empty box
+  if (data === "") {
+    return "Please enter 8 bits. The box is empty.";
+  }
+
+  // 2. Wrong value (anything other than 0 or 1)
+  for (let i = 0; i < data.length; i++) {
+    if (data[i] !== "0" && data[i] !== "1") {
+      return "Only 0 and 1 are allowed (invalid character: '" + data[i] + "').";
+    }
+  }
+
+  // 3. Wrong length (must be exactly 8 bits)
+  if (data.length !== 8) {
+    return "Please enter exactly 8 bits (you entered " + data.length + ").";
+  }
+
+  return "";
+}
+
 // Click a bit
 boxes.forEach(function (box, i) {
   box.addEventListener("click", function () {
@@ -44,7 +70,19 @@ boxes.forEach(function (box, i) {
 });
 
 function generate(type) {
-  const data = bits.slice(0, 8).join("");
+  // If the page has a text box with id="dataInput", read the data from it.
+  // Otherwise use the 8 clicked bit boxes.
+  const inputBox = document.getElementById("dataInput");
+  const data = inputBox ? inputBox.value.trim() : bits.slice(0, 8).join("");
+
+  // Lab 8: check the input first
+  const problem = checkInput(data);
+  if (problem) {
+    showMessage(problem, "bad");
+    showSteps([]);
+    return;
+  }
+
   const result = generateCodeword(data, type);
   if (result.error) { showMessage(result.error, "bad"); return; }
   bits = result.codeword.split("");

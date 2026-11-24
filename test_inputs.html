@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Lab 8 - Input Checks Test (Feature 1)</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 30px; background: #f5f5f5; color: #222; }
+  h1 { font-size: 22px; }
+  .row { padding: 8px 12px; margin: 6px 0; border-radius: 6px; background: #fff; border-left: 6px solid #999; }
+  .pass { border-left-color: #2e9e4f; }
+  .fail { border-left-color: #d33; background: #fdeaea; }
+  .summary { margin-top: 18px; font-size: 18px; font-weight: bold; }
+  #fixture { display: none; }
+</style>
+</head>
+<body>
+<h1>Lab 8: Input checks for feature 1 (empty box, wrong value, wrong length)</h1>
+<div id="results"></div>
+<div class="summary" id="summary"></div>
+
+<!-- Hidden copy of the elements script.js needs, plus a text box with id="dataInput" -->
+<div id="fixture">
+  <div class="bit" id="b0">0</div><div class="bit" id="b1">0</div><div class="bit" id="b2">0</div>
+  <div class="bit" id="b3">0</div><div class="bit" id="b4">0</div><div class="bit" id="b5">0</div>
+  <div class="bit" id="b6">0</div><div class="bit" id="b7">0</div>
+  <div class="bit parity hidden" id="b8">0</div>
+  <input type="text" id="dataInput">
+  <div id="message"></div>
+  <ul id="steps"></ul>
+  <p id="hint"></p>
+  <button id="evenBtn"></button><button id="oddBtn"></button>
+  <button id="checkBtn"></button><button id="resetBtn"></button>
+</div>
+
+<script>
+  var loadErrors = [];
+  window.addEventListener("error", function (e) {
+    if (e.target && e.target.tagName === "SCRIPT") {
+      loadErrors.push("Could not load " + e.target.getAttribute("src") + " (is it in the same folder as this file?)");
+    } else {
+      loadErrors.push((e.filename ? e.filename.split("/").pop() + ": " : "") + e.message);
+    }
+  }, true);
+</script>
+
+<!-- parity.js and script.js must be in the SAME folder as this file -->
+<script src="parity.js"></script>
+<script src="script.js"></script>
+<script>
+  var box = document.getElementById("results");
+
+  if (typeof checkInput !== "function") {
+    var msg = document.createElement("div");
+    msg.className = "row fail";
+    msg.textContent = "Cannot run: checkInput() was not found. " +
+      (loadErrors.length ? loadErrors.join("  |  ") : "Use the NEW script.js and keep it in the same folder as this file.");
+    box.appendChild(msg);
+    throw new Error("checkInput() not found");
+  }
+
+  var EMPTY = "Please enter 8 bits. The box is empty.";
+
+  // [name, text typed in the box, expected message from checkInput ("" = accepted)]
+  var cases = [
+    ["1. Empty box",                       "",           EMPTY],
+    ["2. Only spaces (counts as empty)",   "   ",        EMPTY],
+    ["3. Too short: 1011",                 "1011",       "Please enter exactly 8 bits (you entered 4)."],
+    ["4. Too long: 101100101 (9 bits)",    "101100101",  "Please enter exactly 8 bits (you entered 9)."],
+    ["5. Wrong value (letters): 10110abc", "10110abc",   "Only 0 and 1 are allowed (invalid character: 'a')."],
+    ["6. Wrong value (digit 2): 10120010", "10120010",   "Only 0 and 1 are allowed (invalid character: '2')."],
+    ["7. Valid: 10110010 is accepted",     "10110010",   ""]
+  ];
+
+  var passed = 0, total = 0;
+  function show(name, ok, extra) {
+    total++; if (ok) passed++;
+    var div = document.createElement("div");
+    div.className = "row " + (ok ? "pass" : "fail");
+    div.textContent = (ok ? "PASS  " : "FAIL  ") + name + (ok ? "" : "   " + extra);
+    box.appendChild(div);
+  }
+
+  // Part A: checkInput() directly
+  cases.forEach(function (c) {
+    var got = checkInput(c[1]);
+    show("checkInput - " + c[0], got === c[2], "(got: '" + got + "')");
+  });
+
+  // Part B: the real button logic, generate("even"), reading the text box
+  var input = document.getElementById("dataInput");
+  var msgBox = document.getElementById("message");
+
+  input.value = "";
+  generate("even");
+  show("generate - empty box shows red error",
+       msgBox.textContent === EMPTY && msgBox.className.indexOf("bad") !== -1,
+       "(shown: '" + msgBox.textContent + "', class: '" + msgBox.className + "')");
+
+  input.value = "10110abc";
+  generate("even");
+  show("generate - wrong value shows red error",
+       msgBox.textContent.indexOf("Only 0 and 1") === 0 && msgBox.className.indexOf("bad") !== -1,
+       "(shown: '" + msgBox.textContent + "')");
+
+  input.value = "10110010";
+  generate("even");
+  show("generate - valid data gives codeword 101100100, no error",
+       msgBox.textContent.indexOf("Codeword = 101100100") !== -1 && msgBox.className.indexOf("bad") === -1,
+       "(shown: '" + msgBox.textContent + "')");
+
+  document.getElementById("summary").textContent = passed + " / " + total + " tests passed";
+</script>
+</body>
+</html>
